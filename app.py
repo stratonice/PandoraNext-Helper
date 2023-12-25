@@ -91,6 +91,13 @@ def after_request(result):
         g.db.close()
     return result
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+CHECK_SETUP_PASSWORD = os.getenv('CHECK_SETUP_PASSWORD')
+CHECK_PROXY_API_PREFIX = os.getenv('CHECK_PROXY_API_PREFIX')
+CHECK_CAPTCHA = os.getenv('CHECK_CAPTCHA')
 
 def check_require_config():
     PANDORA_NEXT_PATH = os.getenv('PANDORA_NEXT_PATH')
@@ -116,6 +123,8 @@ def check_require_config():
         # 检查setup_password是否已经配置和密码强度
         # 密码强度要求：8-16位，包含数字、字母、特殊字符
         logger.info(config)
+		if CHECK_SETUP_PASSWORD == 'True':
+        # 根据环境变量的值判断
         if config['setup_password'] is None:
             logger.error('请先配置setup_password')
             exit(1)
@@ -124,12 +133,18 @@ def check_require_config():
             logger.error('setup_password强度不符合要求，请重新配置')
             exit(1)
         app.config.update(setup_password=config['setup_password'])
+		if CHECK_SETUP_PASSWORD == 'True':
+    # 代码块
+     # 根据环境变量的值判断
         # 必须配置proxy_api_prefix,且不少于8位，同时包含字母和数字
         if config['proxy_api_prefix'] is None or re.match(r'^(?=.*[a-zA-Z])(?=.*\d).{8,}$',
                                                           config['proxy_api_prefix']) is None:
             logger.error('请配置proxy_api_prefix')
             exit(1)
         app.config.update(proxy_api_prefix=config['proxy_api_prefix'])
+		if CHECK_CAPTCHA == 'True':
+         # 代码块
+        # 根据环境变量的值判断
         # 检查验证码是否已经配置
         if config['captcha'] is None or config['captcha']['provider'] is None:
             logger.error('请配置hcaptcha验证码')
